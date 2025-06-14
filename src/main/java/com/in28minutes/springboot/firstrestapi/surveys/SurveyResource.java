@@ -51,6 +51,8 @@ public class SurveyResource {
     public Question retrieveSpecificQuestion(@PathVariable String surveyid, @PathVariable String questionid){
 
         Question question = surveyService.retrieveQuestionById(surveyid,questionid);
+        if (question == null) throw new ResponseStatusException(HttpStatus.NOT_FOUND);
+
         return question;
 
     }
@@ -77,7 +79,6 @@ public class SurveyResource {
     @RequestMapping(value = "/surveys/{surveyid}/questions/{questionid}", method = RequestMethod.PUT)
     public ResponseEntity<Object> updatedSurveyQuestion(@PathVariable String surveyid,
                                                         @PathVariable String questionid, @RequestBody Question question){
-
 
         surveyService.updateQuestionById(surveyid,questionid, question);
 

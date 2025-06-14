@@ -62,6 +62,14 @@
 			<artifactId>h2</artifactId>
 			<scope>runtime</scope>
 		</dependency>
+
+		<dependency>
+			<groupId>org.springframework</groupId>
+			<artifactId>spring-test</artifactId>
+			<version>6.1.6</version> <!-- or align with your Spring Boot 3.5.x version -->
+			<scope>test</scope>
+		</dependency>
+
 	</dependencies>
 
 	<build>
