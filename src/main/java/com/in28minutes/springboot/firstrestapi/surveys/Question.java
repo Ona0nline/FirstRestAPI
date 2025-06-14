@@ -34,6 +34,10 @@ public class Question {
         return correctAnswer;
     }
 
+    public void setId(String id) {
+        this.id = id;
+    }
+
     @Override
     public String toString() {
         return "Question{" +
