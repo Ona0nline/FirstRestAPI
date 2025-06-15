@@ -11,6 +11,8 @@ import org.springframework.http.HttpHeaders;
 import org.springframework.http.HttpMethod;
 import org.springframework.http.ResponseEntity;
 
+import java.util.Base64;
+
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertTrue;
 
@@ -21,12 +23,16 @@ public class SurveyResourceIT {
     private TestRestTemplate testRestTemplate = new TestRestTemplate();
     private static String SPECIFIC_QUESTION_URL = "/surveys/Survey1/questions/question1";
     private static String ALL_QUESTIONS_URL = "/surveys/Survey1/questions";
-
+//To pass integration tests with Spring security need to add authorization header
 
     @Test
     void retrieveSpecificQuestion() throws JSONException {
 //        Fire a request and want to check if response matches
-        ResponseEntity<String> responseEntity = testRestTemplate.getForEntity(SPECIFIC_QUESTION_URL, String.class);
+        HttpHeaders headers = getHttpHeaders();
+//       Combining both headers and response body
+        HttpEntity<String> entity = new HttpEntity<String>(null, headers);
+        ResponseEntity<String> responseEntity = testRestTemplate.exchange
+                (SPECIFIC_QUESTION_URL, HttpMethod.GET,entity, String.class);
         String expectedresponse = """
                 {"id":"Question1",
                 "description":"Most Popular Cloud Platform Today",
@@ -42,19 +48,23 @@ public class SurveyResourceIT {
 
     @Test
     void retrieveSurveyQuestions_basicScenario() throws JSONException{
-        ResponseEntity<String> responseEntity = testRestTemplate.getForEntity(ALL_QUESTIONS_URL, String.class);
+        HttpHeaders headers = getHttpHeaders();
+//       Combining both headers and response body
+        HttpEntity<String> entity = new HttpEntity<String>(null, headers);
+        ResponseEntity<String> responseEntity = testRestTemplate.exchange
+                (ALL_QUESTIONS_URL, HttpMethod.GET,entity, String.class);
 //        Typically want to check that the ids are there, make sure Junit asserts are concise and check for the most relevant things only
         String expectedresponse = """
                 [
                   {
-                    "id": "Question1",
+                    "id": "Question1"
                    
                   },
                   {
-                    "id": "Question2",
+                    "id": "Question2"
                   },
                   {
-                    "id": "Question3",
+                    "id": "Question3"
                   }
                 ]
                 """;
@@ -87,8 +97,7 @@ public class SurveyResourceIT {
                 }
             """;
 
-        HttpHeaders headers = new HttpHeaders();
-        headers.add("Content-Type", "application/json");
+        HttpHeaders headers = getHttpHeaders();
 //       Combining both headers and response body
         HttpEntity<String> entity = new HttpEntity<String>(requestbody, headers);
         ResponseEntity<String> responseEntity = testRestTemplate.exchange
@@ -99,7 +108,27 @@ public class SurveyResourceIT {
 
         String locationHeader = responseEntity.getHeaders().get("Location").get(0);
         assertTrue(responseEntity.getHeaders().get("Location").get(0).contains("/surveys/Survey1/questions"));
-        testRestTemplate.delete(locationHeader);
+        ResponseEntity<String> responseEntityDelete = testRestTemplate.exchange
+                (locationHeader, HttpMethod.DELETE,entity, String.class);
+        assertTrue(responseEntityDelete.getStatusCode().is2xxSuccessful());
+
+//        testRestTemplate.delete(locationHeader);
+
+    }
+
+    private HttpHeaders getHttpHeaders() {
+        HttpHeaders headers = new HttpHeaders();
+        headers.add("Content-Type", "application/json");
+        headers.add("Authorization","Basic " + performBasicAuthEncoding("admin","password"));
+        return headers;
+    }
+
+    String performBasicAuthEncoding(String user, String password){
+
+        String combined = user + ":" + password;
+//        Base64 Encoding => Bytes
+        byte[] encodedBytes = Base64.getEncoder().encode(combined.getBytes());
+        return new String(encodedBytes);
 
     }
 

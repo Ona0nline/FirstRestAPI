@@ -6,6 +6,7 @@ import com.in28minutes.springboot.firstrestapi.surveys.SurveyService;
 import org.junit.jupiter.api.Test;
 import org.skyscreamer.jsonassert.JSONAssert;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.boot.test.autoconfigure.web.servlet.AutoConfigureMockMvc;
 import org.springframework.boot.test.autoconfigure.web.servlet.WebMvcTest;
 import org.springframework.http.MediaType;
 import org.springframework.test.web.servlet.MockMvc;
@@ -19,6 +20,8 @@ import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.mockito.Mockito.when;
 
 @WebMvcTest(controllers = SurveyResource.class)
+//To disable filters, aka that chain of command before a request gets approved
+@AutoConfigureMockMvc(addFilters = false)
 public class SurveyResourceTest {
 //    @MockBean
     private SurveyService surveyService;
